@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 
-
 def getReview(html_data):
     soup = BeautifulSoup(html_data, 'html.parser')
     # Extract the reviewer spec
@@ -10,10 +9,11 @@ def getReview(html_data):
     for i in range(0, len(reviewers)):
         if(reviewers[i].select_one('.review-profile__body_information')):
             review_spec = reviewers[i].select_one('.review-profile__body_information').get_text()
-            if(len(review_spec) == 3):
-                review_gender = review_spec.split(' · ')[0]
-                review_height = review_spec.split(' · ')[1]
-                review_weight = review_spec.split(' · ')[2]
+            split_review_spec = review_spec.split(' · ')
+            if(len(split_review_spec) == 3):
+                review_gender = split_review_spec[0]
+                review_height = split_review_spec[1]
+                review_weight = split_review_spec[2]
             else:
                 review_gender = None
                 review_height = None
@@ -38,7 +38,6 @@ def getReview(html_data):
             'review_image_url':review_image_url
         }
         result.append(tmp)
-
     return result
 
 def calculate_pagination(total_item, item_per_page):
@@ -65,7 +64,8 @@ def calculate_pagination(total_item, item_per_page):
         
 #     if response.status_code == 200:
 #         data = response.text
-#         print(getReview(data))
+#         # print(getReview(data))
+#         print(getSatisfaction(data))
     
 #     else:
 #         print(f"Failed to fetch data for page {page}. Status code: {response.status_code}")
