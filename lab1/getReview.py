@@ -24,10 +24,12 @@ def getReview(html_data):
             review_weight = None
         review_text = reviewers[i].select_one('.review-contents__text').text.strip()
         review_rating = int(reviewers[i].select_one('.review-list__rating__active')['style'].split(':')[1].replace('%','').strip())
-        if(reviewers[i].select_one('.review-content-photo__item img')):
-            review_image_url = reviewers[i].select_one('.review-content-photo__item img')['src']
-        else:
-            review_image_url = None
+
+        # reviewer image        
+        # if(reviewers[i].select_one('.review-content-photo__item img')):
+        #     review_image_url = reviewers[i].select_one('.review-content-photo__item img')['src']
+        # else:
+        #     review_image_url = None
 
         tmp = {
             'review_gender':review_gender,
@@ -35,7 +37,7 @@ def getReview(html_data):
             'review_weight':review_weight,
             'review_text':review_text,
             'review_rating':review_rating,
-            'review_image_url':review_image_url
+            # 'review_image_url':review_image_url
         }
         result.append(tmp)
     return result

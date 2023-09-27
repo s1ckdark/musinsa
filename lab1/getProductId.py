@@ -20,7 +20,62 @@ def getProduct(_id):
     #컬러옵션,
     #구매자키,몸무게,사이즈 커요, 사이즈 작아요
     product_url = f"https://www.musinsa.com/app/goods/{_id}"
-    row = {}
+    row = {
+        "category":None,
+        "product_title":None,
+        "brand": None,
+        "goodscode":None,
+        "gender": None,
+        "rating": None,
+        "reviews_count": None,
+        "Tags": None,
+        "material": None,
+        "XS_총장": None,
+        "XS_어깨너비": None,
+        "XS_가슴단면": None,
+        "XS_소매길이": None,
+        "S_총장": None,
+        "S_어깨너비": None,
+        "S_가슴단면": None,
+        "S_소매길이": None,
+        "M_총장": None,
+        "M_어깨너비": None,
+        "M_가슴단면": None,
+        "M_소매길이": None,
+        "L_총장": None,
+        "L_어깨너비": None,
+        "L_가슴단면": None,
+        "L_소매길이": None,
+        "XL_총장": None,
+        "XL_어깨너비": None,
+        "XL_가슴단면": None,
+        "XL_소매길이": None,
+        "2XL_총장": None,
+        "2XL_어깨너비": None,
+        "2XL_가슴단면": None,
+        "2XL_소매길이": None,
+        "3XL_총장": None,
+        "3XL_어깨너비": None,
+        "3XL_가슴단면": None,
+        "3XL_소매길이": None,
+        "4XL_총장": None,
+        "4XL_어깨너비": None,
+        "4XL_가슴단면": None,
+        "4XL_소매길이": None,
+        "views": None,
+        "sales": None,
+        "like": None,
+        "age_label": None,
+        "~18세": None,
+        "19~23세": None,
+        "24~28세": None,
+        "29~33세"  : None,
+        "34~39세" : None,
+        "40세~": None,
+        "남성_비율": None,
+        "여성_비율": None
+    }
+
     rows = []
 
 
@@ -60,41 +115,47 @@ def getProduct(_id):
     for item in product_size[2:]:  # Skip the first two items
         columns = item.find_all('td')
         size_name = item.select_one('th').get_text()
-    
+
         for i, header in enumerate(product_size_headers[1:]):  # Start from the second header
             key = f"{size_name}_{header}"
             value = float(columns[i].text.strip())
-            row[key] = value
+            if key in row:
+                row[key] = value
+            else:
+                newSize = key.split('_')[0]
+                newKey=f"{sizeMapping(newSize)}_{header}"
+                row[newKey] = value
+
 
     # guide
-    product_guide = soup.select('.box_material table.table-simple tbody tr')
-    for item in product_guide:
-        columns = item.find_all('td')
-        header = item.find('th').text.strip()
-        if len(columns) > 1:
-            values = [col.text.strip() for col in columns if "active" in col.get("class", [])]
-            row[header] = ",".join(values)
+    # product_guide = soup.select('.box_material table.table-simple tbody tr')
+    # for item in product_guide:
+    #     columns = item.find_all('td')
+    #     header = item.find('th').text.strip()
+    #     if len(columns) > 1:
+    #         values = [col.text.strip() for col in columns if "active" in col.get("class", [])]
+    #         row[header] = ",".join(values)
 
-    satisfaction_div = soup.select_one('.wrap-prd-estimate')
+    # satisfaction_div = soup.select_one('.wrap-prd-estimate')
 
-    satisfaction_key = satisfaction_div.select_one('.estimate-avg-point > .tit').get_text()
+    # satisfaction_key = satisfaction_div.select_one('.estimate-avg-point > .tit').get_text()
 
-    satisfaction_value = satisfaction_div.select_one('.estimate-stats--new > span').get_text()
-    row[satisfaction_key] = satisfaction_value
-     # Extract the key-value pairs for each category
-    categories_div = soup.find('div', id='satisfaction_list')
-    categories = categories_div.find_all('div', class_='lv-contents')
+    # satisfaction_value = satisfaction_div.select_one('.estimate-stats--new > span').get_text()
+    # row[satisfaction_key] = satisfaction_value
+    #  # Extract the key-value pairs for each category
+    # categories_div = soup.find('div', id='satisfaction_list')
+    # categories = categories_div.find_all('div', class_='lv-contents')
 
-    results = {}
+    # results = {}
 
-    for category in categories:
-        category_name = category.find('div', class_='tit').text.strip()
-        category_labels = category.find_all('div', class_='label')
-        category_label = [category_name+"_"+category_label.text.strip() for category_label in category_labels] 
-        percentages = category.find_all('div', class_='per')
-        values = [percentage.text.strip() for percentage in percentages]
-        for index, label in enumerate(category_label):
-            row[label] = values[index]
+    # for category in categories:
+    #     category_name = category.find('div', class_='tit').text.strip()
+    #     category_labels = category.find_all('div', class_='label')
+    #     category_label = [category_name+"_"+category_label.text.strip() for category_label in category_labels] 
+    #     percentages = category.find_all('div', class_='per')
+    #     values = [percentage.text.strip() for percentage in percentages]
+    #     for index, label in enumerate(category_label):
+    #         row[label] = values[index]
 
     # statics = getSatisfaction(soup)
     # print(statics)
@@ -109,7 +170,7 @@ def getProduct(_id):
     row['sales']=sales
     row['like']=like
 
-    #rating
+    # rating
     age_rows = soup.select('.bar_wrap li')
     for item in age_rows:
         age_label = item.select_one('.bar_name').text.strip()
@@ -120,7 +181,7 @@ def getProduct(_id):
     gender_labels = soup.select('#graph_doughnut_label .label_info_name')
     gender_values = soup.select('#graph_doughnut_label .label_info_value')
     for label, value in zip(gender_labels, gender_values):
-        gender_label = label.text.strip()
+        gender_label = f"{label.text.strip()}_비율"
         gender_percentage = value.text.strip()
         row[gender_label] = gender_percentage
 
@@ -129,13 +190,13 @@ def getProduct(_id):
     review_url = "https://goods.musinsa.com/api/goods/v2/review"
     reviewType = soup.find_all('li', class_='btnReviewTypeTab')
     for item in reviewType:
-        key = item.get('data-type')
+        review_type = item.get('data-type')
         value = int(item.get('data-review-count'))
-        row['review_count'] = value
-        row['review_type']=key
+        # row['review_count'] = value
+        # row['review_type']=key
         pages = calculate_pagination(value, 10)
         for page in range(1, pages):
-            url = f"{review_url}/{key}/list?sort=up_cnt_desc&selectedSimilarNo={_id}&page={page}&goodsNo={_id}"
+            url = f"{review_url}/{review_type}/list?sort=up_cnt_desc&selectedSimilarNo={_id}&page={page}&goodsNo={_id}"
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
                 data = response.text
@@ -146,11 +207,16 @@ def getProduct(_id):
             for review in reviewData:
                 tmp = review | row
                 rows.append(tmp)
+
             df=pd.json_normalize(rows)
-            save_to_csv(df,"musinsa.csv")
-            print(f"complete to save that product_id:{_id} save:{page} url:{url} rows:{len(rows)}")
+            prevRows = len(rows)
+            dupulcate = True
+            print(f"complete to save that product_id:{_id} save:{page} review_type:{review_type} rows:{len(rows)}")
+            save_to_csv(df,f"{_id}.csv")
 
     driver.close()
+
+
 
     # for key, value in row.items():
     #     print(f"{key}: {value}")
@@ -163,8 +229,8 @@ def getProduct(_id):
 
     #     # Create a list to store the cells of each row
     #     # row = [img, title, info, price, product_seller_url, product_url]
-    #     row = [img, title, info, price, product_url]
-    #     reivew_list_url = f'https://goods.musinsa.com/api/goods/v2/review/style/list?similarNo=3200524&sort=new&selectedSimilarNo={id}&page=1&goodsNo={id}'
+    #     row = [img, title, info, price, product_url
+        #     reivew_list_url = f'https://goods.musinsa.com/api/goods/v2/review/style/list?similarNo=3200524&sort=new&selectedSimilarNo={id}&page=1&goodsNo={id}'
     #     review_html = requests.get(reivew_list_url, headers=headers)
     #     review_soup = bs(review_html.content, 'html.parser')
 
@@ -177,6 +243,10 @@ def getProduct(_id):
     #     # Append the row to the table_rows list
     #     table_rows.append(row)
     # return rows;
+
+def sizeMapping(sizeName):
+    size_mapping = {"SS":"XS","SM":"S","LL":"XL","3L":"2XL","4L":"3XL","5L":"4XL"}
+    return size_mapping[sizeName]
 
 def getSatisfaction(soup):
     print(soup)
@@ -204,7 +274,7 @@ def getSatisfaction(soup):
 def save_to_csv(df, csvFilePath, sep=",", encoding='utf-8-sig'):
     import os
     if not os.path.isfile(csvFilePath):
-        df.to_csv(csvFilePath, mode='a', index=False, sep=sep)
+        df.to_csv(csvFilePath, mode='a', index=False, sep=sep, encoding=encoding)
     elif len(df.columns) != len(pd.read_csv(csvFilePath, nrows=1, sep=sep).columns):
         raise Exception("Columns do not match!! Dataframe has " + str(len(df.columns)) + " columns. CSV file has " + str(len(pd.read_csv(csvFilePath, nrows=1, sep=sep).columns)) + " columns.")
     elif not (df.columns == pd.read_csv(csvFilePath, nrows=1, sep=sep).columns).all():
@@ -226,30 +296,35 @@ def getAllProduct(_page_number):
     product_list = product_soup.find(class_="snap-article-list boxed-article-list article-list center list goods_small_media8")
     product_id = []
     total_page = product_soup.find(class_='totalPagingNum')
-
+    prds = []
     for product in product_list.find_all(class_="li_box"):
         id = product.find(class_="list_info").find('a').get('href').split('/')[5]
-        getProduct(id)
+        prds.append(id)
+        # getProduct(id)
 
-    return product_id
+    return prds
 
-def sizing_map (df_col) :
-    SIZE_LABEL_MAP = {
-        # 1. FREE SIZE
-        "옵션없음": "FREE",
-        "SIZE": "FREE",
-        "단품": "FREE"
-    } 
-    df_col = df_col.replace(SIZE_LABEL_MAP)
-    return df_col
+# def sizing_map (df_col) :
+#     SIZE_LABEL_MAP = {
+#         # 1. FREE SIZE
+#         "옵션없음": "FREE",
+#         "SIZE": "FREE",
+#         "단품": "FREE"
+#     } 
+#     df_col = df_col.replace(SIZE_LABEL_MAP)
+#     return df_col
 
 
 if __name__ == "__main__":
     total_page = getTotalPage()
+    # test = ["2029969","3407212"] 
     if(total_page > 400):
         total_page = 400
-    for i in range(total_page):
-        print(getAllProduct(i))
+    for i in range(1, total_page):
+    # for product in test:
+        for product in getAllProduct(i):
+            print(product)
+            getProduct(product)
+            time.sleep(1)  # Uncomment this line if needed
 
     # You may want to add some delay between requests to avoid overloading the server
-    time.sleep(1)  # Uncomment this line if needed
