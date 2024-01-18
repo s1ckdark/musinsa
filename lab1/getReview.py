@@ -22,7 +22,7 @@ def getReview(html_data):
             review_gender = None
             review_height = None
             review_weight = None
-        review_text = reviewers[i].select_one('.review-contents__text').text.strip()
+        # review_text = reviewers[i].select_one('.review-contents__text').text.strip()
         review_rating = int(reviewers[i].select_one('.review-list__rating__active')['style'].split(':')[1].replace('%','').strip())
 
         # reviewer image        
@@ -35,7 +35,7 @@ def getReview(html_data):
             'review_gender':review_gender,
             'review_height':review_height,
             'review_weight':review_weight,
-            'review_text':review_text,
+            # 'review_text':review_text,
             'review_rating':review_rating,
             # 'review_image_url':review_image_url
         }

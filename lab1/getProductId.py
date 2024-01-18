@@ -3,6 +3,7 @@ from selenium import webdriver as wd
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import time
 import requests
 import csv
@@ -10,6 +11,9 @@ import re
 import pandas as pd 
 from getReview import *
 from bs4 import BeautifulSoup as bs
+from pyvirtualdisplay import Display
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15'
@@ -30,38 +34,6 @@ def getProduct(_id):
         "reviews_count": None,
         "Tags": None,
         "material": None,
-        "XS_총장": None,
-        "XS_어깨너비": None,
-        "XS_가슴단면": None,
-        "XS_소매길이": None,
-        "S_총장": None,
-        "S_어깨너비": None,
-        "S_가슴단면": None,
-        "S_소매길이": None,
-        "M_총장": None,
-        "M_어깨너비": None,
-        "M_가슴단면": None,
-        "M_소매길이": None,
-        "L_총장": None,
-        "L_어깨너비": None,
-        "L_가슴단면": None,
-        "L_소매길이": None,
-        "XL_총장": None,
-        "XL_어깨너비": None,
-        "XL_가슴단면": None,
-        "XL_소매길이": None,
-        "2XL_총장": None,
-        "2XL_어깨너비": None,
-        "2XL_가슴단면": None,
-        "2XL_소매길이": None,
-        "3XL_총장": None,
-        "3XL_어깨너비": None,
-        "3XL_가슴단면": None,
-        "3XL_소매길이": None,
-        "4XL_총장": None,
-        "4XL_어깨너비": None,
-        "4XL_가슴단면": None,
-        "4XL_소매길이": None,
         "views": None,
         "sales": None,
         "like": None,
@@ -78,9 +50,12 @@ def getProduct(_id):
 
     rows = []
 
-
+    
     # selinium
-    driver = wd.Chrome()
+    options = Options()
+    options.add_argument('--headless')
+    driver = wd.Chrome('/usr/lib/chromium-browser/chromedriver',  options=options)
+    #driver = wd.Chrome(ChromeDriverManager().install())
     driver.get(product_url)
     soup=driver.page_source
     driver.implicitly_wait(10)
@@ -119,12 +94,12 @@ def getProduct(_id):
         for i, header in enumerate(product_size_headers[1:]):  # Start from the second header
             key = f"{size_name}_{header}"
             value = float(columns[i].text.strip())
-            if key in row:
-                row[key] = value
-            else:
-                newSize = key.split('_')[0]
-                newKey=f"{sizeMapping(newSize)}_{header}"
-                row[newKey] = value
+            #if key in row:
+            row[key] = value
+            #else:
+            #    newSize = key.split('_')[0]
+            #    newKey=f"{sizeMapping(newSize)}_{header}"
+            #    row[newKey] = value
 
 
     # guide
@@ -317,14 +292,14 @@ def getAllProduct(_page_number):
 
 if __name__ == "__main__":
     total_page = getTotalPage()
-    # test = ["2029969","3407212"] 
+    test = ["1149328"] 
     if(total_page > 400):
         total_page = 400
-    for i in range(1, total_page):
-    # for product in test:
-        for product in getAllProduct(i):
-            print(product)
-            getProduct(product)
-            time.sleep(1)  # Uncomment this line if needed
+    #for i in range(1, total_page):
+    for product in test:
+        #for product in getAllProduct(i):
+        print(product)
+        getProduct(product)
+        time.sleep(1)  # Uncomment this line if needed
 
     # You may want to add some delay between requests to avoid overloading the server
